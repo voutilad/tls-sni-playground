@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 import os
 import sys
+import signal
 
 import socket
 import ssl
 
+from threading import Event
 from concurrent.futures import ThreadPoolExecutor
 
+# Global event for quiescing.
+TIME_TO_DIE = Event()
+def sighandler(signum, frame):
+    TIME_TO_DIE.set()
+signal.signal(signal.SIGINT, sighandler)
+CLIENTS = set()
 
 TLS_CERT = os.environ.get("TLS_CERT", "ca.crt")
 TLS_PKEY = os.environ.get("TLS_PKEY", "private.key")
@@ -38,12 +46,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
 
     # Wrap with TLS...
     with context.wrap_socket(sock, server_side=True) as ssock:
+        ssock.settimeout(1)
         with ThreadPoolExecutor(max_workers=2) as pool:
+            # Our client handler.
             def echo(conn, addr):
                 i = 0
-                conn.settimeout(3)
+                conn.settimeout(10)
                 conn.sendall(f"Hi, {addr[0]}:{addr[1]}! I'm {HOST}.\n".encode("utf8"))
-                while True:
+                while True and not TIME_TO_DIE.is_set():
                     try:
                         data = conn.recv(512)
                         if not data: break
@@ -52,16 +62,25 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
                         # TODO: printability?
                         conn.sendall(f"You said ({i}): {s}".encode("utf8"))
                     except:
-                        conn.close()
                         break
+                CLIENTS.remove(conn)
+                conn.shutdown(socket.SHUT_RDWR)
+                conn.close()
                 print(f"[{addr}] disconnected")
 
-            while True:
+            # Main listener loop.
+            while True and not TIME_TO_DIE.is_set():
                 try:
                     conn, addr = ssock.accept()
+                    CLIENTS.add(conn)
                     print(f"[{addr}] connected")
                     pool.submit(echo, conn, addr)
                 except ssl.SSLError as e:
                     pass
                 except Exception as e:
-                    break
+                    pass
+
+            # Kill any connections.
+            for client in CLIENTS:
+                client.shutdown(socket.SHUT_RDWR)
+                client.close()
