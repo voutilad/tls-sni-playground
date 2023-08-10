@@ -41,18 +41,19 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         with ThreadPoolExecutor(max_workers=2) as pool:
             def echo(conn, addr):
                 i = 0
-                conn.sendall("Hi, {addr}! I'm {HOST}.\n".encode("utf8"))
+                conn.settimeout(3)
+                conn.sendall(f"Hi, {addr[0]}:{addr[1]}! I'm {HOST}.\n".encode("utf8"))
                 while True:
-                    data = conn.recv(512)
-                    if not data: break
-                    i = i + 1
                     try:
+                        data = conn.recv(512)
+                        if not data: break
+                        i = i + 1
                         s = data.decode("utf8")
-                        if not s.isprintable():
-                            s = "[nonsense]"
+                        # TODO: printability?
+                        conn.sendall(f"You said ({i}): {s}".encode("utf8"))
                     except:
                         conn.close()
-                    conn.sendall("You said ({i}): {s}".encode("utf8"))
+                        break
                 print(f"[{addr}] disconnected")
 
             while True:
@@ -63,4 +64,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
                 except ssl.SSLError as e:
                     pass
                 except Exception as e:
-                    print(e)
+                    break
