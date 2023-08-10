@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 TIME_TO_DIE = Event()
 def sighandler(signum, frame):
     TIME_TO_DIE.set()
-signal.signal(signal.SIGINT, sighandler)
+signal.signal(signal.SIGINT|signal.SIGTERM, sighandler)
 CLIENTS = set()
 
 TLS_CERT = os.environ.get("TLS_CERT", "ca.crt")
