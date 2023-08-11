@@ -22,7 +22,7 @@ TLS_PKEY = os.environ.get("TLS_PKEY", "private.key")
 context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 try:
     print(f"Loading x509 cert '{TLS_CERT}' and private key '{TLS_PKEY}'")
-    context.load_cert_chain("ca.crt", "private.key")
+    context.load_cert_chain(TLS_CERT, keyfile=TLS_PKEY)
 except ssl.SSLError as e:
     print(f"SSLError: {e.strerror}")
     sys.exit(1)
@@ -33,13 +33,14 @@ except Exception as e:
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = os.environ.get("PORT", 8888)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     # Start looking for friends out in the ether...
-    addr = (HOST, PORT)
-    print(f"Binding to {addr}")
+    addr = (HOST.rstrip("."), PORT)
+    print(f"Binding to {addr}.")
     try:
         sock.bind(addr)
         sock.listen(5)
+        print(f"Listening on {addr}.")
     except Exception as e:
         print(e)
         sys.exit(1)
