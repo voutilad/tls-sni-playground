@@ -2,19 +2,18 @@
 # the app since it's built as a static binary with musl.
 FROM traefik:v2.10 AS base
 
-FROM debian:12-slim
-RUN apt update && \
-    apt install -y openssl wget iputils-ping && \
-    apt autoremove && \
-    adduser --disabled-password --home /traefik traefik
-COPY --from=base /usr/local/bin/traefik /traefik/traefik
-RUN chown traefik:traefik /traefik/traefik
+FROM alpine:3.18
+RUN mkdir /app && \
+    adduser -D traefik && \
+    apk add --force-refresh openssl
+COPY --from=base /usr/local/bin/traefik /app/traefik
+RUN chown -R traefik:traefik /app
 
 USER traefik
-WORKDIR /traefik
-ENV PATH="/traefik:${PATH}"
-COPY ./traefik.yaml /traefik/traefik.yaml
-COPY ./traefik-dynamic.yaml /traefik/traefik-dynamic.yaml
+WORKDIR /app
+ENV PATH="/app:${PATH}"
+COPY ./traefik.yaml /app/traefik.yaml
+COPY ./traefik-dynamic.yaml /app/traefik-dynamic.yaml
 
 ENTRYPOINT [ "traefik" ]
 CMD [ "--configfile", "traefik.yaml" ]
