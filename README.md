@@ -60,3 +60,6 @@ TODO: pull in the self-signed root CA for verification
 
 / #
 ```
+
+The "echo" application should greet each connection with its FQDN and
+then just echo back any lines you send it.
