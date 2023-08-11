@@ -1,0 +1,35 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: echo-selfsigned-cluster-issuer
+spec:
+  selfSigned: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: echo-selfsigned-issuer
+spec:
+  selfSigned: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: echo-default-cert
+spec:
+  dnsNames:
+  - "*.echo-svc.default.svc.cluster.local"
+  - "*.echo-svc.default.svc"
+  - "*.echo-svc.default"
+  - "*.echo-svc.default.svc.cluster.local"
+  duration: 43800h0m0s
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: echo-selfsigned-issuer
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  secretName: echo-default-cert
