@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+K3D_SERVERLB="k3d-sni-test-serverlb."
+SERVICE="echo-svc.default.svc.cluster.local"
+INGRESS_IP=$(nslookup -type=a "${K3D_SERVERLB}" | grep "Address" | grep -v ":53" | awk '{ print $2 }')
+
+if [ -z ${INGRESS_IP} ]; then
+    echo "Can't find IP for ${K3D_SERVERLB}. Did you run docker with the proper network set?" > /dev/stderr
+    exit 1
+fi
+
+# append to /etc/hosts
+echo "Updating /etc/hosts:"
+for i in 0 1; do
+    echo "${INGRESS_IP} echo-${i}.${SERVICE}" | tee -a /etc/hosts
+done
+echo
+
+# cheatsheet
+echo "-----------------------------------------------------------------"
+echo "You can now connect to one of the statefulset pods using openssl:"
+echo
+echo "# openssl s_client echo-1.echo-svc.default.svc.cluster.local:30088"
+echo
+echo "TODO: pull in the self-signed root CA for verification"
+echo
+
+# jump into a shell
+exec /bin/sh -i
