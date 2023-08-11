@@ -1,0 +1,21 @@
+tcp:
+  services:
+    echo-0:
+      loadBalancer:
+        servers:
+        - address: "echo-0.echo-svc.default.svc.cluster.local.:8888"
+    echo-1:
+      loadBalancer:
+        servers:
+        - address: "echo-1.echo-svc.default.svc.cluster.local.:8888"
+  routers:
+    echo-0:
+      rule: "HostSNI(`echo-0.echo-svc.default.svc.cluster.local`)"
+      service: "echo-0"
+      tls:
+        passthrough: true
+    echo-1:
+      rule: "HostSNI(`echo-1.echo-svc.default.svc.cluster.local`)"
+      service: "echo-1"
+      tls:
+        passthrough: true
