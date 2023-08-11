@@ -7,4 +7,4 @@ entryPoints:
 
 providers:
   file:
-    filename: /root/traefik-dynamic.yaml
+    filename: ./traefik-dynamic.yaml

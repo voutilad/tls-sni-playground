@@ -12,6 +12,8 @@ RUN chown -R traefik:traefik /app
 USER traefik
 WORKDIR /app
 ENV PATH="/app:${PATH}"
+EXPOSE 8888/tcp
+
 COPY ./traefik.yaml /app/traefik.yaml
 COPY ./traefik-dynamic.yaml /app/traefik-dynamic.yaml
 
