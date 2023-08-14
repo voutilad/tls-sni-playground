@@ -26,12 +26,13 @@ $ make push     # deploy the app image
 $ kubectl apply -f 00-cert-manager.yaml   # install cert-manager
 $ kubectl apply -f 01-cert-issuers.yaml   # deploy issuers
 $ kubectl apply -f 02-statefulset.yaml    # deploy the application
+$ kubectl apply -f 03-traefik.yaml        # deploy the sni router
 ```
 
 3. Make sure it's running.
 
 ```
-$ kubectl get statefulset echo
+$ kubectl get statefulset -n echo echo
 ```
 
 4. Use the provided Docker image to test connectivity.
@@ -48,13 +49,16 @@ You should end up in a Docker instance *outside* the k3s cluster.
 ```
 docker run --rm -it --network k3d-sni-test sclient:latest
 Updating /etc/hosts:
-192.168.48.5 echo-0.echo-svc.default.svc.cluster.local
-192.168.48.5 echo-1.echo-svc.default.svc.cluster.local
+192.168.48.6 echo-0.echo-svc.echo.svc.cluster.local
+192.168.48.6 echo-1.echo-svc.echo.svc.cluster.local
+192.168.48.6 echo-svc.echo.svc.cluster.local
 
 -----------------------------------------------------------------
-You can now connect to one of the statefulset pods using openssl:
+You can now connect to one of the statefulset pods using openssl.
 
-# openssl s_client echo-1.echo-svc.default.svc.cluster.local:30088
+For example, to force connection to echo-1:
+
+# openssl s_client -servername echo-1.echo-svc.echo.svc.cluster.local echo-svc.echo.svc.cluster.local:30088
 
 TODO: pull in the self-signed root CA for verification
 
