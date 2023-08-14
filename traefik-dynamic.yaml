@@ -11,15 +11,15 @@ tcp:
     redpanda-0-kafka:
       loadBalancer:
         servers:
-        - address: "redpanda-0.redpanda.redpanda.svc.cluster.local.:9063"
+        - address: "redpanda-0.redpanda.redpanda.svc.cluster.local.:9093"
     redpanda-1-kafka:
       loadBalancer:
         servers:
-        - address: "redpanda-1.redpanda.redpanda.svc.cluster.local.:9063"
+        - address: "redpanda-1.redpanda.redpanda.svc.cluster.local.:9093"
     redpanda-2-kafka:
       loadBalancer:
         servers:
-        - address: "redpanda-2.redpanda.redpanda.svc.cluster.local.:9063"
+        - address: "redpanda-2.redpanda.redpanda.svc.cluster.local.:9093"
   routers:
     echo-0:
       entryPoints:

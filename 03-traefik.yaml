@@ -35,6 +35,11 @@ spec:
     targetPort: traefik-echo
     nodePort: 30088
     port: 8888
+  - name: external-rp-kafka
+    protocol: TCP
+    targetPort: traefik-kafka
+    nodePort: 30093
+    port: 9093
 
 ---
 apiVersion: apps/v1
@@ -58,7 +63,7 @@ spec:
       - name: sni-router
         image: sni-test-registry:5000/traefik-sni:latest
         ports:
-        - containerPort: 9063
+        - containerPort: 9093
           name: traefik-kafka
         - containerPort: 8888
           name: traefik-echo

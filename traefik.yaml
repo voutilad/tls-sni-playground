@@ -5,7 +5,7 @@ entryPoints:
   echo:
     address: ":8888/tcp"
   rp-kafka:
-    address: ":9063/tcp"
+    address: ":9093/tcp"
 
 providers:
   file:
