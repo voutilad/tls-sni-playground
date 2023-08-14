@@ -2,7 +2,7 @@
 set -e
 
 K3D_SERVERLB="k3d-sni-test-serverlb."
-SERVICE="echo-svc.default.svc.cluster.local"
+SERVICE="echo-svc.echo.svc.cluster.local"
 INGRESS_IP=$(nslookup -type=a "${K3D_SERVERLB}" | grep "Address" | grep -v ":53" | awk '{ print $2 }')
 
 if [ -z ${INGRESS_IP} ]; then
@@ -15,13 +15,16 @@ echo "Updating /etc/hosts:"
 for i in 0 1; do
     echo "${INGRESS_IP} echo-${i}.${SERVICE}" | tee -a /etc/hosts
 done
+echo "${INGRESS_IP} ${SERVICE}" | tee -a /etc/hosts
 echo
 
 # cheatsheet
 echo "-----------------------------------------------------------------"
-echo "You can now connect to one of the statefulset pods using openssl:"
+echo "You can now connect to one of the statefulset pods using openssl."
 echo
-echo "# openssl s_client echo-1.echo-svc.default.svc.cluster.local:30088"
+echo "For example, to force connection to echo-1:"
+echo
+echo "# openssl s_client -servername echo-1.${SERVICE} ${SERVICE}:30088"
 echo
 echo "TODO: pull in the self-signed root CA for verification"
 echo

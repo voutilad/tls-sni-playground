@@ -2,8 +2,10 @@ log:
   level: DEBUG
 
 entryPoints:
-  tcp:
+  echo:
     address: ":8888/tcp"
+  rp-kafka:
+    address: ":9063/tcp"
 
 providers:
   file:
