@@ -204,3 +204,7 @@ $ rpk topic consume solo -v --num 1 --brokers redpanda-2.redpanda.redpanda.svc.c
   "offset": 0
 }
 ```
+
+## Exercises left for the Reader
+
+Now go expose the Admin API 😉
