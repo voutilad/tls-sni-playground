@@ -1,0 +1,92 @@
+---
+tcp:
+  services:
+    echo-0:
+      loadBalancer:
+        servers:
+        - address: "echo-0.echo-svc.echo.svc.cluster.local.:8888"
+    echo-1:
+      loadBalancer:
+        servers:
+        - address: "echo-1.echo-svc.echo.svc.cluster.local.:8888"
+    redpanda-0-kafka:
+      loadBalancer:
+        servers:
+        - address: "redpanda-0.redpanda.redpanda.svc.cluster.local.:9094"
+    redpanda-1-kafka:
+      loadBalancer:
+        servers:
+        - address: "redpanda-1.redpanda.redpanda.svc.cluster.local.:9094"
+    redpanda-2-kafka:
+      loadBalancer:
+        servers:
+        - address: "redpanda-2.redpanda.redpanda.svc.cluster.local.:9094"
+    redpanda-0-admin:
+      loadBalancer:
+        servers:
+        - address: "redpanda-0.redpanda.redpanda.svc.cluster.local.:9645"
+    redpanda-1-admin:
+      loadBalancer:
+        servers:
+        - address: "redpanda-1.redpanda.redpanda.svc.cluster.local.:9645"
+    redpanda-2-admin:
+      loadBalancer:
+        servers:
+        - address: "redpanda-2.redpanda.redpanda.svc.cluster.local.:9645"
+  routers:
+    echo-0:
+      entryPoints:
+      - "echo"
+      rule: "HostSNI(`echo-0.echo-svc.echo.svc.cluster.local`)"
+      service: "echo-0"
+      tls:
+        passthrough: true
+    echo-1:
+      entryPoints:
+      - "echo"
+      rule: "HostSNI(`echo-1.echo-svc.echo.svc.cluster.local`)"
+      service: "echo-1"
+      tls:
+        passthrough: true
+    redpanda-kafka-0:
+      entryPoints:
+      - "rp-kafka"
+      rule: "HostSNI(`redpanda-0.%%DOMAIN%%`)"
+      service: "redpanda-0-kafka"
+      tls:
+        passthrough: true
+    redpanda-kafka-1:
+      entryPoints:
+      - "rp-kafka"
+      rule: "HostSNI(`redpanda-1.%%DOMAIN%%`)"
+      service: "redpanda-1-kafka"
+      tls:
+        passthrough: true
+    redpanda-kafka-2:
+      entryPoints:
+      - "rp-kafka"
+      rule: "HostSNI(`redpanda-2.%%DOMAIN%%`)"
+      service: "redpanda-2-kafka"
+      tls:
+        passthrough: true
+    redpanda-admin-0:
+      entryPoints:
+      - "rp-admin"
+      rule: "HostSNI(`redpanda-0.%%DOMAIN%%`)"
+      service: "redpanda-0-admin"
+      tls:
+        passthrough: true
+    redpanda-admin-1:
+      entryPoints:
+      - "rp-admin"
+      rule: "HostSNI(`redpanda-1.%%DOMAIN%%`)"
+      service: "redpanda-1-admin"
+      tls:
+        passthrough: true
+    redpanda-admin-2:
+      entryPoints:
+      - "rp-admin"
+      rule: "HostSNI(`redpanda-2.%%DOMAIN%%`)"
+      service: "redpanda-2-admin"
+      tls:
+        passthrough: true

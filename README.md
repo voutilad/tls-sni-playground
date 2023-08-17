@@ -6,27 +6,36 @@ with tls.
 
 ## Pre-reqs
 - Docker
-- k3d (for local k3s orchestration)
+- either:
+  - k3d (for local k3s orchestration)
+  - GCP access (for GKE orchestration)
+  - AWS access (...todo)
 
-> This was developed and tested all on a Debian 12 host. YMMV.
+> This was developed and tested all on an arm64 Debian 12 host. YMMV.
+
+## Optional Env Vars
+- `RP_DOMAIN` -
+- `CLUSTER_NAME` -
 
 ## Deploying
+Assuming you're testing this locally with k3s, you can do the
+following.
 
 1. Build images, spin up k3s, and push images.
 
 ```
-$ make build    # build the docker image
 $ ./k3d.sh      # spin up the k3s cluster
+$ make build    # build the docker image
 $ make push     # deploy the app image
 ```
 
 2. Deploy the k8s services.
 > You may need to wait a bit for k3s to be ready.
 ```
-$ kubectl apply -f 00-cert-manager.yaml   # install cert-manager
-$ kubectl apply -f 01-cert-issuers.yaml   # deploy issuers
-$ kubectl apply -f 02-statefulset.yaml    # deploy the application
-$ kubectl apply -f 03-traefik.yaml        # deploy the sni router
+$ kubectl apply -f k8s/00-cert-manager.yaml   # install cert-manager
+$ kubectl apply -f k8s/01-cert-issuers.yaml   # deploy issuers
+$ kubectl apply -f k8s/02-statefulset.yaml    # deploy the application
+$ kubectl apply -f k8s/03-traefik.yaml        # deploy the sni router
 ```
 
 3. Make sure it's running.
@@ -73,7 +82,7 @@ then just echo back any lines you send it.
 1. Spin up a Redpanda 3-node cluster using the provided shell script.
 
 ```
-$ ./rp-go.sh
+$ ./redpanda.sh
 # you'll see a bunch of output...eventually...
 # ...
 >> Waiting for rollout...

@@ -1,0 +1,15 @@
+---
+log:
+  level: DEBUG
+
+providers:
+  file:
+    filename: ./traefik-dynamic.yaml
+
+entryPoints:
+  echo:
+    address: ":8888/tcp"
+  rp-kafka:
+    address: ":9094/tcp"
+  rp-admin:
+    address: ":9645/tcp"

@@ -17,5 +17,8 @@ EXPOSE 8888/tcp
 COPY ./traefik.yaml /app/traefik.yaml
 COPY ./traefik-dynamic.yaml /app/traefik-dynamic.yaml
 
+ARG DOMAIN=redpanda.redpanda.svc.cluster.local
+RUN sed -i "s/%%DOMAIN%%/${DOMAIN}/" /app/traefik-dynamic.yaml
+
 ENTRYPOINT [ "traefik" ]
 CMD [ "--configfile", "traefik.yaml" ]

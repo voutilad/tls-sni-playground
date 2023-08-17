@@ -1,8 +1,12 @@
 #!/bin/sh
 set -e
 
+RP_DOMAIN="${DOMAIN:-sni-demo.redpanda-labs.com}"
+TOPIC="${TOPIC:-example-topic}"
+EXTERNAL_KAFKA_PORT=9094
+
 ### 0. Pre-requisites
-for cmd in k3d helm kubectl; do
+for cmd in helm kubectl; do
     if [ -z "$(which "${cmd}")" ]; then
         echo "!! Failed to find ${cmd} in path. Is it installed?"
         exit 1;
@@ -23,16 +27,17 @@ if ! kubectl get service redpanda -n redpanda > /dev/null; then
     helm install redpanda redpanda/redpanda \
          --namespace redpanda \
          --create-namespace \
-         --set external.domain=${DOMAIN} \
+         --set external.domain="${RP_DOMAIN}" \
          --set statefulset.initContainers.setDataDirOwnership.enabled=true \
          --set resources.memory.container.max=1.5Gi \
-         --set imemory.redpanda.memory=1Gi
+         --set external.type=null \
+         --set "listeners.kafka.external.default.advertisedPorts={${EXTERNAL_KAFKA_PORT}}"
     echo ">> Waiting for rollout..."
     kubectl -n redpanda rollout status statefulset redpanda --watch
 fi
 
-### 3. Bootstrap our Topic(s)
-echo "> Checking if topic ${TOPIC} exists..."
+### 3. Bootstrap a Topic to check we're up and running.
+echo "> Checking if topic ${TOPIC} exists using internal k8s network..."
 if ! kubectl -n redpanda exec -it redpanda-0 -c redpanda -- \
      rpk topic list \
      --brokers redpanda.redpanda.svc.cluster.local.:9093 \
@@ -40,14 +45,14 @@ if ! kubectl -n redpanda exec -it redpanda-0 -c redpanda -- \
    | grep "${TOPIC}"; then
     echo ">> Creating topic ${TOPIC}"
     kubectl -n redpanda exec -it redpanda-0 -c redpanda -- \
-            rpk topic create "${TOPIC}" -r "${SERVERS}" \
+            rpk topic create "${TOPIC}" -r 3 \
             --brokers redpanda.redpanda.svc.cluster.local.:9093 \
             --tls-truststore /etc/tls/certs/default/ca.crt --tls-enabled
 fi
 
-### 5. Update our copy of the self-signed root CA file
-echo "> Fetching copy of root CA..."
+### 4. Update our copy of the self-signed root CA file.
+echo "> Fetching copy of root CA for external network..."
 kubectl -n redpanda get secret \
-	redpanda-default-root-certificate \
+	redpanda-external-root-certificate \
 	-o go-template='{{ index .data "ca.crt" | base64decode }}' \
 	> redpanda-ca.crt
