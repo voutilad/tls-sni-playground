@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -29,9 +30,9 @@ metadata:
   namespace: echo
 spec:
   dnsNames:
-  - "*.echo-svc.echo.svc.cluster.local"
-  - "*.echo-svc.echo.svc"
-  - "*.echo-svc.echo"
+    - "*.echo-svc.echo.svc.cluster.local"
+    - "*.echo-svc.echo.svc"
+    - "*.echo-svc.echo"
   duration: 43800h0m0s
   issuerRef:
     group: cert-manager.io

@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,10 +10,10 @@ spec:
   selector:
     app.kubernetes.io/name: echo
   ports:
-  - name: headless-echo
-    protocol: TCP
-    targetPort: echo
-    port: 8888
+    - name: headless-echo
+      protocol: TCP
+      targetPort: echo
+      port: 8888
 
 ---
 apiVersion: apps/v1
@@ -35,39 +36,39 @@ spec:
     spec:
       dnsPolicy: "ClusterFirst"
       containers:
-      - name: echo
-        image: sni-test-registry:5000/echo:latest
-#        command: ["/bin/sh", "-c", "while true; do sleep 1; done"]
-        env:
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: HOST
-          value: "$(POD_NAME).echo-svc.$(POD_NAMESPACE).svc.cluster.local."
-        - name: TLS_CERT
-          value: "/etc/certs/tls.crt"
-        - name: TLS_PKEY
-          value: "/etc/certs/tls.key"
-        volumeMounts:
-        - mountPath: "/etc/certs"
-          name: default-cert
-        ports:
-        - containerPort: 8888
-          name: echo
-      volumes:
-      - name: default-cert
-        secret:
-          items:
-          - key: tls.key
-            path: tls.key
-          - key: tls.crt
-            path: tls.crt
-          - key: ca.crt
-            path: ca.crt
-          secretName: default-cert
-          defaultMode: 420
+        - name: echo
+          image: sni-test-registry:5000/echo:latest
+          # command: ["/bin/sh", "-c", "while true; do sleep 1; done"]
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: HOST
+              value: "$(POD_NAME).echo-svc.$(POD_NAMESPACE).svc.cluster.local."
+            - name: TLS_CERT
+              value: "/etc/certs/tls.crt"
+            - name: TLS_PKEY
+              value: "/etc/certs/tls.key"
+          volumeMounts:
+            - mountPath: "/etc/certs"
+              name: default-cert
+          ports:
+            - containerPort: 8888
+              name: echo
+          volumes:
+            - name: default-cert
+              secret:
+                items:
+                  - key: tls.key
+                    path: tls.key
+                  - key: tls.crt
+                    path: tls.crt
+                  - key: ca.crt
+                    path: ca.crt
+                secretName: default-cert
+                defaultMode: 420
