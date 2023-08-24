@@ -9,7 +9,7 @@ spec:
   selector:
     app.kubernetes.io/name: traefik
   externalTrafficPolicy: Cluster
-  # loadBalancerIP: 34.30.106.12
+  # loadBalancerIP: a.b.c.d
   ports:
   - name: external-echo
     protocol: TCP
