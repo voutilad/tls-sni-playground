@@ -2,6 +2,7 @@
 set -e
 
 K3D_SERVERLB="k3d-sni-test-serverlb."
+K3S_NODEPORT=30888
 SERVICE="echo-svc.echo.svc.cluster.local"
 INGRESS_IP=$(nslookup -type=a "${K3D_SERVERLB}" | grep "Address" | grep -v ":53" | awk '{ print $2 }')
 
@@ -24,7 +25,7 @@ echo "You can now connect to one of the statefulset pods using openssl."
 echo
 echo "For example, to force connection to echo-1:"
 echo
-echo "# openssl s_client -servername echo-1.${SERVICE} ${SERVICE}:30088"
+echo "# openssl s_client -servername echo-1.${SERVICE} ${SERVICE}:${K3S_NODEPORT}"
 echo
 echo "TODO: pull in the self-signed root CA for verification"
 echo
