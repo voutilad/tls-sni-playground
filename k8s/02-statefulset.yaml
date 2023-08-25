@@ -37,7 +37,8 @@ spec:
       dnsPolicy: "ClusterFirst"
       containers:
         - name: echo
-          image: sni-test-registry:5000/echo:latest
+          image: python:3.11-slim
+          command: [ "python3", "/app/app.py" ]
           env:
             - name: POD_NAMESPACE
               valueFrom:
@@ -54,12 +55,17 @@ spec:
             - name: TLS_PKEY
               value: "/etc/certs/tls.key"
           volumeMounts:
+            - mountPath: "/app"
+              name: echo-src
             - mountPath: "/etc/certs"
               name: default-cert
           ports:
             - containerPort: 8888
               name: echo
       volumes:
+        - name: echo-src
+          configMap:
+            name: echo-src
         - name: default-cert
           secret:
             items:
