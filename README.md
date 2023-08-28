@@ -1,8 +1,22 @@
-# Statefulset TLS PLayground
+# Redpanda Statefulset TLS PLayground
 
-TBA...short detail is this is a python app and k8s config for
-deploying a stateful app that provides a simple echo service over tcp
-with tls.
+This project demonstrates using Server Name Indication (SNI) to route
+TLS connections without TLS termination. It includes a demonstration
+app, written in Python, that provides a basic TCP echo service that
+self-identifies on connect. A prescribed Helm-based installation of
+Redpanda demonstrates how to take the same approach and apply it to a
+Redpanda cluster in k8s.
+
+> But...why?
+
+This approach allows you to expose a single ingress for a stateful
+service in k8s while allowing clients to specific which instance
+(e.g. which broker) they intend to talk to via TCP. Instead of using
+NodePorts or a 1:1 broker:LoadBalancer approach, this simplifies the
+architecture for external clients at the expense of some networking
+overhead.
+
+How much overhead is yet to be determined 😉
 
 ## Pre-reqs
 - Docker
